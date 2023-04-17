@@ -15,3 +15,6 @@ Detailed Notes:
   - Replacing the `mov` instruction operand to 0 seems to cause the above address to  be static. Stage counter continues to increment
 - Might be total time game is open?
 
+**Address**: `Windswept.exe+00814450` <br>
+**Offsets**: `x58A`, `x8`, `x80`, `x588` <br>
+**Descriptions**: Either the current selected stage, or just the constant for GUIDING GLADE stage name
