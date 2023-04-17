@@ -17,4 +17,8 @@ Detailed Notes:
 
 **Address**: `Windswept.exe+00814450` <br>
 **Offsets**: `x58A`, `x8`, `x80`, `x588` <br>
-**Descriptions**: Either the current selected stage, or just the constant for GUIDING GLADE stage name
+**Descriptions**: Constant for GUIDING GLADE stage name
+
+**Address**: `Windswept.exe+00A44200` <br>
+**Offsets**: `x10`, `x100`, `x50`, `x530`, `x370` <br>
+**Description**: Double containing coins for the current selected profile
