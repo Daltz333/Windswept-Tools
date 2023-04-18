@@ -22,3 +22,5 @@ Detailed Notes:
 **Address**: `Windswept.exe+00A44200` <br>
 **Offsets**: `x10`, `x100`, `x50`, `x530`, `x370` <br>
 **Description**: Double containing coins for the current selected profile
+
+`Windswept.exe+284B30` seems to be of some usefulness, seems to control game state of some sort.
