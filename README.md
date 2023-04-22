@@ -24,3 +24,14 @@ Detailed Notes:
 **Description**: Double containing coins for the current selected profile
 
 `Windswept.exe+284B30` seems to be of some usefulness, seems to control game state of some sort.
+
+**Address**: `Windswept.exe+A23384` <br>
+**Descriptions**: Int for currently selected stage (note that bonus levels are different stages)
+
+| VALUE | IG VALUE |
+|-------|----------|
+| 48    | 0        |
+| 32    | 30       |
+| 7     | 0        |
+| 52    | 30       |
+|       |          |
