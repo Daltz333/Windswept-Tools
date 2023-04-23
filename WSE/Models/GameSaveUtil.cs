@@ -16,16 +16,16 @@ namespace WSE.Models
         {
             var saves = new List<GameSave>();
 
-            try
+            // Retrieve files in save data directory
+            var files = Directory.GetFiles(GlobalState.Instance.SaveSearchDir);
+
+            int i = 1;
+
+            // Enumerate save files
+            foreach (var fileStr in files.Where(p => p.Contains(".save") && !p.Contains("Settings"))
+                                            .OrderBy(p => p))
             {
-                // Retrieve files in save data directory
-                var files = Directory.GetFiles(GlobalState.Instance.SaveSearchDir);
-
-                int i = 1;
-
-                // Enumerate save files
-                foreach (var fileStr in files.Where(p => p.Contains(".save") && !p.Contains("Settings"))
-                                                .OrderBy(p => p))
+                try
                 {
                     // Parse to raw object
                     var str = File.ReadAllText(fileStr);
@@ -38,93 +38,76 @@ namespace WSE.Models
                     gameSave.SaveName = $"Save {i}";
                     gameSave.GameCoins = int.Parse(json?.game_Coins ?? "-1");
                     gameSave.GameTimeSeconds = double.Parse(json?.game_Time ?? "-1.0") / 1000;
-                    gameSave.HardmodePlayers = (HardmodeState) int.Parse(json?.game_Hardmode ?? "-1");
+                    gameSave.HardmodePlayers = (HardmodeState)int.Parse(json?.game_Hardmode ?? "-1");
+                    gameSave.GameTutorialState = int.Parse(json?.game_Tutorial ?? "3");
 
                     var gameStages = new List<Stage>();
 
-                    // Iterate over comets states and create initial stages
-                    if (json?.coins_Comet != null)
+                    var stagesArePacifist = json?.stage_Clears_Pacifist?.Split("|");
+                    var stagesWithCloudsCollected = json?.coins_Cloud?.Split("|");
+                    var stagesWithCometShards = json?.coins_CometShard?.Split("|");
+                    var stagesWithCometCollected = json?.coins_Comet?.Split("|");
+                    var stageTimes = json?.stage_Times?.Split("|");
+                    var stageClears = json?.stage_Clears?.Split("|");
+                    var stageMoons = json?.coins_Moon?.Split("|");
+
+                    Log.Information("Successfully split stage items!");
+
+                    // Parse collectibles. They are deliminated by stage with |
+                    // We are assuming they all have a length of 100
+                    for (int x = 0; x < 100; x++)
                     {
-                        int x = 0;
-                        foreach (var comet in json.coins_Comet.Split("|"))
+                        var stage = new Stage();
+
+                        stage.IsPacifist = (stagesArePacifist?[x] ?? "0") == "0" ? false : true;
+                        stage.StageTimeSeconds = double.Parse(stageTimes?[x] ?? "0.0") / 1000;
+                        stage.CloudState = (StageCollectableState)int.Parse(stagesWithCloudsCollected?[x] ?? "0");
+                        stage.CometState = (StageCollectableState)int.Parse(stagesWithCometCollected?[x] ?? "0");
+
+                        // Check stage cleared state, convert to enum
+                        // Easier to manually parse it
+                        if (stageClears != null)
                         {
-                            var stage = new Stage();
-                            stage.StageIndex = x;
-                            stage.CometState = (StageCollectableState) int.Parse(comet);
-
-                            gameStages.Add(stage);
-
-                            x++;
+                            stage.IsStageCleared = (StageClearedState)int.Parse(stageClears[x]);
                         }
-                    }
 
-                    if (json?.coins_Cloud != null)
-                    {
-                        int x = 0;
-                        foreach (var cloud in json.coins_Cloud.Split("|"))
+                        // Comet shards are deliminated with | for per stage
+                        // and then deliminated with - for shard in stage
+                        if (stagesWithCometShards != null)
                         {
-                            gameStages[x].CloudState = (StageCollectableState )int.Parse(cloud);
-
-                            x++;
+                            string[] shardNum = stagesWithCometShards[x].Split("-");
+                            stage.ShardsCollected = shardNum.Select(p => int.Parse(p)).ToArray();
                         }
-                    }
 
-                    if (json?.coins_Moon != null)
-                    {
-                        int x = 0;
-                        int y = 0;
-                        foreach (var moon in json.coins_Moon.Split("|"))
+                        // Moons are deliminated with | for stage AND moon
+                        // There can be 5 moons per stage, but can be unused, still mark as 0
+                        if (stageMoons != null)
                         {
-                            // Grouped into "5"
-                            if (y == 5)
-                            {
-                                y = 0;
-                                x += 1;
-                            }
-
-                            // If a moon is marked as "collected" (2) then add to num moons
-                            gameStages[x].NumMoons += int.Parse(moon) == 2 ? 1 : 0;
+                            stage.MoonsCollected = stageMoons.Skip(5 * x).Take(5).Select(p => int.Parse(p)).ToArray();
                         }
-                    }
 
-                    if (json?.stage_Times != null)
-                    {
-                        int x = 0;
-                        foreach (var time in json.stage_Times.Split("|"))
-                        {
-                            gameStages[x].StageTimeSeconds = double.Parse(time) / 1000;
-
-                            x++;
-                        }
-                    }
-
-                    if (json?.coins_CometShard != null)
-                    {
-                        int x = 0;
-                        foreach(var shardCollec in json.coins_CometShard.Split("|"))
-                        {
-                            int numShardsCollected = shardCollec.Split("-").Where(p => p == "2").Count();
-
-                            gameStages[x].ShardsCollected = numShardsCollected;
-                            x++;
-                        }
+                        stage.StageIndex = x;
+                        gameStages.Add(stage);
                     }
 
                     gameSave.UnparsedGameSave = json;
                     gameSave.Stages = gameStages;
 
                     saves.Add(gameSave);
-                    i++;
-                }
-            } catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to retrieve game saves");
-            }
 
+                    Log.Information($"Completed parsing save data for save {i}");
+
+                    i++;
+                } catch (Exception ex)
+                {
+                    Log.Error(ex, $"Failed to parse save data for save {i}");
+                }
+            }
+            
             return saves;
         }
 
-        public void ExportSaveFile(GameSave save)
+        public static void ExportSaveFile(GameSave save)
         {
             var rawGameSaveExport = new UnparsedGameSave();
 
@@ -151,9 +134,9 @@ namespace WSE.Models
             }
         }
 
-        public static Dictionary<int, string> StageNameLookupTable = new()
+        public static string[] StageNameLookupTable = 
         {
-            { 0, "GUIDING GLADE" },
+            "GUIDING GLADE",
         };
     }
 }

@@ -11,9 +11,9 @@ namespace WSE.Converters
 {
     public class EnumDescriptionConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value.GetType().IsEnum)
+            if (value != null && value.GetType().IsEnum)
             {
                 return ((Enum)value).ToString();
             }
@@ -21,7 +21,7 @@ namespace WSE.Converters
             return "Null";
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is string val)
             {

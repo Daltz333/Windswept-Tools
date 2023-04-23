@@ -46,5 +46,18 @@ namespace WSE.ViewModels
                 GlobalState.Instance.GameSaves = GameSaveUtil.GetGameSaves().ToList();
             });
         }
+
+        private ICommand _SaveSavesCommand;
+
+        public ICommand SaveSavesCommand
+        {
+            get => _SaveSavesCommand;
+            set => _SaveSavesCommand = value;
+        }
+
+        private void SaveSaves()
+        {
+            GameSaveUtil.ExportSaveFile(GlobalState.Instance.SelectedGameSave);
+        }
     }
 }

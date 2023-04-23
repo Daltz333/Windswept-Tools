@@ -16,6 +16,8 @@
 
 	<UserControl.Resources>
 		<converters:EnumDescriptionConverter x:Key="enumConverter"/>
+		<converters:IntToBooleanConverter x:Key="intToBoolConverter"/>
+		<converters:StageIndexToTitleConverter x:Key="stageIndexToTitleConverter"/>
 	</UserControl.Resources>
 
 	<Grid ColumnDefinitions="auto,50, *">
@@ -43,7 +45,7 @@
 					<ListBox x:DataType="models:GlobalState" Items="{Binding Source={x:Static models:GlobalState.Instance}, Path=SelectedGameSave.Stages}" SelectedItem="{Binding Source={x:Static models:GlobalState.Instance}, Path=SelectedGameSave.SelectedStage}">
 						<ListBox.ItemTemplate>
 							<DataTemplate x:DataType="models:Stage">
-								<TextBlock Text="{Binding StageIndex}"/>
+								<TextBlock Text="{Binding StageIndex, Converter={StaticResource	stageIndexToTitleConverter}}"/>
 							</DataTemplate>
 						</ListBox.ItemTemplate>
 					</ListBox>
@@ -51,53 +53,59 @@
 			</Grid>
 		</StackPanel>
 		<Border BorderBrush="LightGray" BorderThickness="1" Margin="0, 10, 0, 10" HorizontalAlignment="Center" Grid.RowSpan="2" Grid.Row="0" Grid.Column="1"/>
-		<Grid DataContext="{x:Static models:GlobalState.Instance}"  x:DataType="models:GlobalState" Margin="20, 0, 0, 0" ColumnDefinitions="130, 300" RowDefinitions="40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, *" Grid.Column="2">
+		<Grid DataContext="{x:Static models:GlobalState.Instance}"  x:DataType="models:GlobalState" Margin="20, 0, 0, 0" ColumnDefinitions="130, 300" RowDefinitions="40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40 *" Grid.Column="2">
 			<TextBlock Text="Global" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" />
 			<TextBlock Text="Game Time (s):" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
 			<TextBox Grid.Column="1" Text="{Binding SelectedGameSave.GameTimeSeconds}" Grid.Row="1" Height="15"/>
 			<TextBlock Text="Coins:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"/>
 			<TextBox Grid.Column="1" Text="{Binding SelectedGameSave.GameCoins}" Height="15" Grid.Row="2"/>
 			<TextBlock VerticalAlignment="Center" Text="Hardmode Players:" Grid.Column="0" Grid.Row="3"/>
-			<ComboBox Items="{Binding SelectedGameSave.HardmodeStates}" SelectedItem="{Binding SelectedGameSave.HardmodePlayers, Converter={StaticResource enumConverter}}" Grid.Column="1" Grid.Row="3"/>
+			<ComboBox VerticalAlignment="Center" Items="{Binding SelectedGameSave.HardmodeStates}" SelectedItem="{Binding SelectedGameSave.HardmodePlayers, Converter={StaticResource enumConverter}}" Grid.Column="1" Grid.Row="3"/>
+			<TextBlock Grid.Row="4" VerticalAlignment="Center" Grid.Column="0" Text="game_Tutorial"/>
+			<TextBox Grid.Row="4" Height="15" Grid.Column="1" Text="{Binding SelectedGameSave.GameTutorialState}"/>
 			
-			<TextBlock Text="Stage Specific" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Grid.Row="4"/>
-			<TextBlock Text="Stage Time (s):" Grid.Column="0" Grid.Row="5" VerticalAlignment="Center"/>
-			<TextBox Text="{Binding SelectedGameSave.SelectedStage.StageTimeSeconds}" Grid.Column="1" Height="15" Grid.Row="5"/>
+			<TextBlock Text="Stage Specific" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Grid.Row="5"/>
+			<TextBlock Text="Stage Time (s):" Grid.Column="0" Grid.Row="6" VerticalAlignment="Center"/>
+			<TextBox Text="{Binding SelectedGameSave.SelectedStage.StageTimeSeconds}" Grid.Column="1" Height="15" Grid.Row="6"/>
 
-			<TextBlock Text="Is Pacifist?" Grid.Column="0" Grid.Row="6" VerticalAlignment="Center"/>
-			<CheckBox Grid.Column="1" Grid.Row="6"/>
+			<TextBlock Text="Is Pacifist?" Grid.Column="0" Grid.Row="7" VerticalAlignment="Center"/>
+			<CheckBox Grid.Column="1" Grid.Row="7"/>
 			
-			<TextBlock Text="Comets:" Grid.Column="0" Grid.Row="7" VerticalAlignment="Center"/>
-			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.CometState}" Grid.Column="1" Grid.Row="7">
+			<TextBlock Text="Is Cleared?" Grid.Column="0" Grid.Row="8" VerticalAlignment="Center"/>
+			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.IsStageCleared}" Grid.Column="1" Grid.Row="8">
+				<ComboBoxItem>No</ComboBoxItem>
+				<ComboBoxItem>In Progress</ComboBoxItem>
+				<ComboBoxItem>Complete</ComboBoxItem>
+			</ComboBox>
+			<TextBlock Text="Comets:" Grid.Column="0" Grid.Row="9" VerticalAlignment="Center"/>
+			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.CometState}" Grid.Column="1" Grid.Row="9">
 				<ComboBoxItem>None</ComboBoxItem>
 				<ComboBoxItem>Partial</ComboBoxItem>
 				<ComboBoxItem>Complete</ComboBoxItem>
 			</ComboBox>
-			<TextBlock Text="Clouds:" Grid.Column="0" Grid.Row="8" VerticalAlignment="Center"/>
-			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.CloudState}"  Grid.Column="1" Grid.Row="8">
+			<TextBlock Text="Clouds:" Grid.Column="0" Grid.Row="10" VerticalAlignment="Center"/>
+			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.CloudState}"  Grid.Column="1" Grid.Row="10">
 				<ComboBoxItem>None</ComboBoxItem>
 				<ComboBoxItem>Partial</ComboBoxItem>
 				<ComboBoxItem>Complete</ComboBoxItem>
 			</ComboBox>
-			<TextBlock Text="Moons:" Grid.Column="0" Grid.Row="9" VerticalAlignment="Center"/>
-			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.NumMoons}" Grid.Column="1" Grid.Row="9">
-				<ComboBoxItem>0</ComboBoxItem>
-				<ComboBoxItem>1</ComboBoxItem>
-				<ComboBoxItem>2</ComboBoxItem>
-				<ComboBoxItem>3</ComboBoxItem>
-				<ComboBoxItem>4</ComboBoxItem>
-				<ComboBoxItem>5</ComboBoxItem>
-			</ComboBox>
-			<TextBlock Text="Shards Collected:" Grid.Column="0" Grid.Row="10" Margin="0, 0, 0, 8" VerticalAlignment="Center"/>
-			<ComboBox SelectedIndex="{Binding SelectedGameSave.SelectedStage.ShardsCollected}" Grid.Column="1" Grid.Row="10">
-				<ComboBoxItem>0</ComboBoxItem>
-				<ComboBoxItem>1</ComboBoxItem>
-				<ComboBoxItem>2</ComboBoxItem>
-				<ComboBoxItem>3</ComboBoxItem>
-				<ComboBoxItem>4</ComboBoxItem>
-				<ComboBoxItem>5</ComboBoxItem>
-			</ComboBox>
-			<Button Grid.Column="2" Grid.Row="11" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="Bold" FontSize="20">
+			<TextBlock Text="Moons:" Grid.Column="0" Grid.Row="11" VerticalAlignment="Center"/>
+			<StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="11">
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.MoonsCollected[0], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.MoonsCollected[1], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.MoonsCollected[2], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.MoonsCollected[3], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.MoonsCollected[4], Converter={StaticResource intToBoolConverter}}"/>
+			</StackPanel>
+			<TextBlock Text="Shards Collected:" Grid.Column="0" Grid.Row="12" Margin="0, 0, 0, 8" VerticalAlignment="Center"/>
+			<StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="12">
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.ShardsCollected[0], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.ShardsCollected[1], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.ShardsCollected[2], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.ShardsCollected[3], Converter={StaticResource intToBoolConverter}}"/>
+				<CheckBox IsChecked="{Binding SelectedGameSave.SelectedStage.ShardsCollected[4], Converter={StaticResource intToBoolConverter}}"/>
+			</StackPanel>
+			<Button Grid.Column="2" Grid.Row="13" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="Bold" FontSize="20">
 				<TextBlock Text="Save"/>
 			</Button>
 		</Grid>

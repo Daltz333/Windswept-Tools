@@ -40,7 +40,7 @@ namespace WSE.Models
             set { _GameSaves = value; OnPropertyChanged(nameof(GameSaves)); }
         }
 
-        private GameSave? _SelectedGameSave;
+        private GameSave? _SelectedGameSave = new GameSave();
         
         /// <summary>
         /// Represents the selected game save

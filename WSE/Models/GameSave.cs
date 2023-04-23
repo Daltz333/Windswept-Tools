@@ -80,6 +80,13 @@ namespace WSE.Models
             set { _SelectedStage = value; OnPropertyChanged(nameof(SelectedStage)); }
         }
 
+        private int _GameTutorialState = 3;
+        public int GameTutorialState
+        {
+            get => _GameTutorialState;
+            set { _GameTutorialState = value; OnPropertyChanged(nameof(GameTutorialState)); }
+        }
+
         private string? _SaveName;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -129,7 +136,7 @@ namespace WSE.Models
             set { _CometState = value; OnPropertyChanged(nameof(CometState)); }
         }
 
-        private int _ShardsCollected;
+        private int[] _ShardsCollected = {0, 0, 0, 0, 0};
 
         /// <summary>
         /// Represents the number of shards collected on this stage
@@ -137,7 +144,7 @@ namespace WSE.Models
         /// Value of 0 - 4
         /// Stored in JSON as EX: 2-2-2-0-0 (collect, collect, collect, none, none)
         /// </summary>
-        public int ShardsCollected
+        public int[] ShardsCollected
         {
             get => _ShardsCollected;
             set { _ShardsCollected = value; OnPropertyChanged(nameof(ShardsCollected)); }
@@ -165,6 +172,18 @@ namespace WSE.Models
             set { _StageTimeSeconds = value; OnPropertyChanged(nameof(StageTimeSeconds)); }
         }
 
+
+        private StageClearedState _IsStageCleared = StageClearedState.None;
+
+        /// <summary>
+        /// Represents whether or not the stage is unlocked or cleared
+        /// </summary>
+        public StageClearedState IsStageCleared
+        {
+            get => _IsStageCleared;
+            set { _IsStageCleared = value; OnPropertyChanged(nameof(IsStageCleared)); }
+        }
+
         private StageCollectableState _CloudState;
 
         /// <summary>
@@ -176,17 +195,17 @@ namespace WSE.Models
             set { _CloudState = value; OnPropertyChanged(nameof(CloudState)); }
         }
 
-        private int _NumMoons;
+        private int[] _MoonsCollected = {0, 0, 0, 0, 0};
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Represents whether all the moons were collected for the current stage
         /// </summary>
-        public int NumMoons
+        public int[] MoonsCollected
         {
-            get => _NumMoons;
-            set { _NumMoons = value; OnPropertyChanged(nameof(NumMoons)); }
+            get => _MoonsCollected;
+            set { _MoonsCollected = value; OnPropertyChanged(nameof(_MoonsCollected)); }
         }
 
 
@@ -210,10 +229,23 @@ namespace WSE.Models
         All = 2,
     }
     
+    /// <summary>
+    /// Represents whether or not hardmode is duck or turtle or no-hardmode
+    /// </summary>
     public enum HardmodeState
     {
         None = 0,
         Duck = 1,
         Turtle = 2,
+    }
+
+    /// <summary>
+    /// Represents whether or not the stage is cleared
+    /// </summary>
+    public enum StageClearedState
+    {
+        None = 0,
+        Partial = 1,
+        Complete = 2,
     }
 }
