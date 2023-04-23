@@ -14,7 +14,7 @@ namespace WSE.Models
         public string? coins_Comet;
         public string? coins_CometShard;
         public string? game_Coins;
-        public string? game_Hardmode;
+        public string? game_HardMode;
         public string? stage_Players;
         public string? stage_Clears_Pacifist;
         public string? coins_Cloud;

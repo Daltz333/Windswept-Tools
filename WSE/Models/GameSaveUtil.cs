@@ -38,7 +38,7 @@ namespace WSE.Models
                     gameSave.SaveName = $"Save {i}";
                     gameSave.GameCoins = int.Parse(json?.game_Coins ?? "-1");
                     gameSave.GameTimeSeconds = double.Parse(json?.game_Time ?? "-1.0") / 1000;
-                    gameSave.HardmodePlayers = (HardmodeState)int.Parse(json?.game_Hardmode ?? "-1");
+                    gameSave.HardmodePlayers = (HardmodeState)int.Parse(json?.game_HardMode ?? "-1");
                     gameSave.GameTutorialState = int.Parse(json?.game_Tutorial ?? "3");
 
                     var gameStages = new List<Stage>();
@@ -107,36 +107,107 @@ namespace WSE.Models
             return saves;
         }
 
-        public static void ExportSaveFile(GameSave save)
+        public static string ExportSaveFile(GameSave save)
         {
             var rawGameSaveExport = new UnparsedGameSave();
 
-            rawGameSaveExport.game_Coins = save.GameCoins.ToString();
-            rawGameSaveExport.game_Hardmode = save.HardmodePlayers.ToString();
-            rawGameSaveExport.game_Time = (save.GameTimeSeconds * 1000.0).ToString();
-            rawGameSaveExport.game_Tutorial = save.UnparsedGameSave?.game_Tutorial;
-            
-            for(int i = 0; i < save.Stages.Count; i++)
+            try
             {
-                var stage = save.Stages[i];
+                rawGameSaveExport.game_Coins = save.GameCoins.ToString();
+                rawGameSaveExport.game_HardMode = ((int)save.HardmodePlayers).ToString();
+                rawGameSaveExport.game_Time = (save.GameTimeSeconds * 1000.0).ToString();
+                rawGameSaveExport.game_Tutorial = save.GameTutorialState.ToString();
 
-                rawGameSaveExport.coins_Comet += stage.CometState.ToString();
-                rawGameSaveExport.coins_Cloud += stage.CloudState.ToString();
+                rawGameSaveExport.stage_Players = save?.UnparsedGameSave?.stage_Players ?? "1|0";
 
-                // Not sure if the position matters for shard collection, it probably does, let's just fill with default
-                rawGameSaveExport.coins_CometShard = save.UnparsedGameSave?.coins_CometShard;
-
-                if (i + 1 != save.Stages.Count)
+                // Loop through and add stage items
+                for (int i = 0; i < save?.Stages.Count; i++)
                 {
-                    rawGameSaveExport.coins_Comet += "|";
-                    rawGameSaveExport.coins_Cloud += "|";
+                    var stage = save.Stages[i];
+
+                    rawGameSaveExport.coins_Comet += ((int)stage.CometState).ToString();
+                    rawGameSaveExport.coins_Cloud += ((int)stage.CloudState).ToString();
+                    rawGameSaveExport.stage_Clears += ((int)stage.IsStageCleared).ToString();
+                    rawGameSaveExport.stage_Times += (stage.StageTimeSeconds * 1000.0).ToString();
+                    rawGameSaveExport.stage_Clears_Pacifist += (stage.IsPacifist ? 1 : 0).ToString();
+
+                    // These two saves require a special format
+                    rawGameSaveExport.coins_CometShard += string.Join("-", stage.ShardsCollected.Select(s => s.ToString()));
+                    rawGameSaveExport.coins_Moon += string.Join("|", stage.MoonsCollected.Select(s => s.ToString()));
+
+                    if (i + 1 != save.Stages.Count)
+                    {
+                        rawGameSaveExport.coins_Comet += "|";
+                        rawGameSaveExport.coins_Cloud += "|";
+                        rawGameSaveExport.coins_CometShard += "|";
+                        rawGameSaveExport.coins_Moon += "|";
+                        rawGameSaveExport.stage_Clears_Pacifist += "|";
+                        rawGameSaveExport.stage_Clears += "|";
+                        rawGameSaveExport.stage_Times += "|";
+                    }
                 }
+            } catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to parse save for export!");
             }
+
+            
+            return JsonConvert.SerializeObject(new List<UnparsedGameSave>() { rawGameSaveExport });
         }
 
         public static string[] StageNameLookupTable = 
         {
             "GUIDING GLADE",
+            "HOPPET HEIGHTS",
+            "BRIDGE-WHEEL WATERWAY",
+            "SALAMANCER's SANCTUM",
+            "BRAMBLES IN THE BREEZE",
+            "OCTULENT'S ONSLAUGHT",
+            "PRICKLY PEAL",
+            "CAWBIE CLIFFS",
+            "8",
+            "PIPS AND PITS",
+            "BEEVY BARRACKS",
+            "OVER THE RAYBOW",
+            "GRABBA'S GROTTO",
+            "BEEVY BATTLEGROUND",
+            "THE PIP SHIP",
+            "15",
+            "SNOWY SPRINT",
+            "A TRACK IN TIME",
+            "ABYSSAL ALGOR",
+            "SLICKO SLIDE",
+            "END OF THE RAYBOW",
+            "21",
+            "DIZZYING DESCENT",
+            "SPICY ICE SPEEDWAY",
+            "24",
+            "LAVA PIKE POLDER",
+            "MAGMAW WELL",
+            "HONEYBUZZ BOILER",
+            "VEXATIOUS VENTS",
+            "SMOKY SQUALL",
+            "30",
+            "31",
+            "32",
+            "33",
+            "34",
+            "35",
+            "36",
+            "37",
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44",
+            "45",
+            "46",
+            "47",
+            "48",
+            "49",
+            "DROPDASH CHAPARRAL",
         };
     }
 }
