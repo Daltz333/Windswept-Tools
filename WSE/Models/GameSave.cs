@@ -34,15 +34,32 @@ namespace WSE.Models
             set { _GameCoins = value; OnPropertyChanged(nameof(GameCoins)); }
         }
 
-        private int _HardmodePlayers;
+        private HardmodeState _HardmodePlayers;
 
         /// <summary>
         /// Represents whether or not the current save is in hard mode
         /// </summary>
-        public int HardmodePlayers
+        public HardmodeState HardmodePlayers
         {
             get => _HardmodePlayers;
             set { _HardmodePlayers = value; OnPropertyChanged(nameof(HardmodePlayers)); }
+        }
+
+        private List<string> _hardmodeStates = new()
+        {
+            "None",
+            "Turtle",
+            "Duck",
+        };
+
+        /// <summary>
+        /// Represents as a string list the possible hardmode states
+        /// Only used for the GUI
+        /// </summary>
+        public List<string> HardmodeStates
+        {
+            get => _hardmodeStates;
+            set { _hardmodeStates = value; OnPropertyChanged(nameof(HardmodeStates)); }
         }
 
         private List<Stage>? _Stages;
@@ -53,6 +70,14 @@ namespace WSE.Models
             get => _Stages;
 #pragma warning restore CS8603 // Possible null reference return.
             set { _Stages = value; OnPropertyChanged(nameof(Stages)); }
+        }
+
+        private Stage? _SelectedStage;
+
+        public Stage? SelectedStage
+        {
+            get => _SelectedStage;
+            set { _SelectedStage = value; OnPropertyChanged(nameof(SelectedStage)); }
         }
 
         private string? _SaveName;
@@ -69,6 +94,8 @@ namespace WSE.Models
             get => _SaveName ?? "null";
             set { _SaveName = value; OnPropertyChanged(nameof(SaveName)); }
         }
+
+        public UnparsedGameSave? UnparsedGameSave;
 
         // Create the OnPropertyChanged method to raise the event
         // The calling member's name will be used as the parameter.
@@ -132,10 +159,10 @@ namespace WSE.Models
         /// <summary>
         /// Represents the stage time in milliseconds
         /// </summary>
-        public double StageTimeMilli
+        public double StageTimeSeconds
         {
             get => _StageTimeSeconds;
-            set { _StageTimeSeconds = value; OnPropertyChanged(nameof(StageTimeMilli)); }
+            set { _StageTimeSeconds = value; OnPropertyChanged(nameof(StageTimeSeconds)); }
         }
 
         private StageCollectableState _CloudState;
@@ -149,18 +176,19 @@ namespace WSE.Models
             set { _CloudState = value; OnPropertyChanged(nameof(CloudState)); }
         }
 
-        private StageCollectableState _MoonState;
+        private int _NumMoons;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Represents whether all the moons were collected for the current stage
         /// </summary>
-        public StageCollectableState MoonState
+        public int NumMoons
         {
-            get => _MoonState;
-            set { _MoonState = value; OnPropertyChanged(nameof(MoonState)); }
+            get => _NumMoons;
+            set { _NumMoons = value; OnPropertyChanged(nameof(NumMoons)); }
         }
+
 
         // Create the OnPropertyChanged method to raise the event
         // The calling member's name will be used as the parameter.
@@ -180,5 +208,12 @@ namespace WSE.Models
         None = 0,
         Partial = 1,
         All = 2,
+    }
+    
+    public enum HardmodeState
+    {
+        None = 0,
+        Duck = 1,
+        Turtle = 2,
     }
 }
